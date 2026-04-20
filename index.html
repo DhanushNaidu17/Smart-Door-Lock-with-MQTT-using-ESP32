@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LOCK_02 Control</title>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+
+<body style="text-align:center; font-family:Arial; margin-top:50px;">
+
+<h2>LOCK_02 Door Control</h2>
+
+<h3>Status: <span id="status">Connecting...</span></h3>
+
+<button onclick="openDoor()" style="padding:15px 30px; background:green; color:white;">
+Open Door
+</button>
+
+<button onclick="closeDoor()" style="padding:15px 30px; background:red; color:white;">
+Close Door
+</button>
+
+<script>
+
+const client = mqtt.connect(
+    "wss://a863e6bdc19548d1b79e4ea703dc0872.s1.eu.hivemq.cloud:8884/mqtt",
+    {
+        username: "esp32door",
+        password: "Door1234"
+    }
+);
+
+client.on("connect", function () {
+    console.log("Connected");
+    client.subscribe("door/status");
+});
+
+client.on("message", function (topic, message) {
+    if (topic === "door/status") {
+        document.getElementById("status").innerText = message.toString();
+    }
+});
+
+function openDoor() {
+    client.publish("door/control", "1");
+}
+
+function closeDoor() {
+    client.publish("door/control", "0");
+}
+
+</script>
+
+</body>
+</html>
